@@ -76,11 +76,3 @@ The handshake authenticates both ends using the PSK, derives fresh session keys 
 - `tests/test_network.py`: localhost UDP client/server that encrypts/decrypts ~5 KB and compares the result (auto-skips when sockets are unavailable).
 
 Run individual suites with `python3 -m unittest tests.test_crypto`, etc., or just `make test`.
-
-### Next Steps (for class deliverable)
-
-- Attach `SecureTunnel` to a TUN interface (`/dev/net/tun`) on Kali/Ubuntu to carry IP traffic instead of file chunks.
-- Capture traffic via Wireshark/tcpdump demonstrating encrypted handshakes/data, and document replay/MITM protections.
-- Prepare the final report (≥25 pages) detailing design, algorithms, performance, and attacks, as required by the assignment.
-
-Feel free to open issues or suggestions if you're reviewing this for academic purposes. Otherwise, this repo stands as a reference implementation for the course project.
