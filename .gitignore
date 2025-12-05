@@ -17,3 +17,5 @@ Thumbs.db
 
 # Local secrets
 psk.bin
+
+/docs
