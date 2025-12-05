@@ -11,6 +11,7 @@ from .memory_transport import memory_socketpair
 
 
 def _derive_session_keys(keys, role: str) -> SessionKeys:
+    """Pick the correct set of directional keys for the role."""
     if role == "client":
         return SessionKeys(
             enc_key=keys.client_enc,
@@ -25,6 +26,7 @@ def _derive_session_keys(keys, role: str) -> SessionKeys:
 
 
 def _recv_loop(tunnel: SecureTunnel, output: list[bytes], ready: threading.Event):
+    """Continuously receive packets until an END marker arrives."""
     try:
         ready.set()
         while True:
@@ -37,6 +39,7 @@ def _recv_loop(tunnel: SecureTunnel, output: list[bytes], ready: threading.Event
 
 
 def demo_transfer(psk: bytes) -> list[bytes]:
+    """Run a full handshake + encrypted exchange over an in-memory link."""
     sock_a, sock_b = memory_socketpair()
 
     # Handshake

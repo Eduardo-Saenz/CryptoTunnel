@@ -33,6 +33,7 @@ class HandshakeParticipant:
         private_key: int | None = None,
         nonce: bytes | None = None,
     ):
+        """Prepare deterministic or random key/nonce pairs for a role."""
         self.psk = psk
         if private_key is None:
             self.priv, self.pub = generate_keypair()
@@ -45,6 +46,7 @@ class HandshakeParticipant:
         return sha256(b"".join(parts))
 
     def _derive_keys(self, shared_secret: bytes, nonces: bytes) -> HandshakeKeys:
+        """Expand the Diffie-Hellman secret and nonces into tunnel keys."""
         prk = hkdf_extract(self.psk, shared_secret)
         okm = hkdf_expand(prk, nonces, 128)
         return HandshakeKeys(
@@ -58,6 +60,7 @@ class HandshakeParticipant:
 
 class HandshakeClient(HandshakeParticipant):
     def build_hello(self) -> dict:
+        """Return the first handshake message (ClientHello + MAC)."""
         payload = {
             "role": "client",
             "pub": self.pub,
@@ -67,6 +70,7 @@ class HandshakeClient(HandshakeParticipant):
         return {"payload": payload, "mac": mac}
 
     def process_server_hello(self, server_msg: dict) -> HandshakeKeys:
+        """Validate the server response and derive session keys."""
         payload = server_msg["payload"]
         mac = server_msg["mac"]
         expected = hmac_sha256(self.psk, self._serialize(payload))
@@ -77,6 +81,7 @@ class HandshakeClient(HandshakeParticipant):
         return self._derive_keys(shared, nonces)
 
     def _serialize(self, payload: dict) -> bytes:
+        """Serialize the role/public key/nonce tuple for HMAC coverage."""
         return (
             payload["role"].encode()
             + payload["pub"].to_bytes(256, "big")
@@ -86,6 +91,7 @@ class HandshakeClient(HandshakeParticipant):
 
 class HandshakeServer(HandshakeParticipant):
     def process_client_hello(self, client_msg: dict) -> tuple[dict, HandshakeKeys]:
+        """Validate ClientHello, derive keys, and craft ServerHello reply."""
         payload = client_msg["payload"]
         mac = client_msg["mac"]
         expected = hmac_sha256(self.psk, self._serialize(payload))
@@ -105,6 +111,7 @@ class HandshakeServer(HandshakeParticipant):
         return {"payload": response_payload, "mac": response_mac}, keys
 
     def _serialize(self, payload: dict) -> bytes:
+        """Serialize payload to keep MAC inputs consistent."""
         return (
             payload["role"].encode()
             + payload["pub"].to_bytes(256, "big")

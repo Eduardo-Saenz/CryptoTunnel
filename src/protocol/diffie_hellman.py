@@ -21,19 +21,23 @@ G = 2
 
 
 def random_exponent() -> int:
+    """Return a random private exponent for MODP group 14."""
     return int.from_bytes(os.urandom(32), "big")
 
 
 def generate_keypair() -> tuple[int, int]:
+    """Generate (private, public) Diffie-Hellman key pair."""
     priv = random_exponent()
     pub = pow(G, priv, P)
     return priv, pub
 
 
 def derive_shared(peer_public: int, private: int) -> bytes:
+    """Derive the shared secret resulting from combining both keys."""
     shared = pow(peer_public, private, P)
     return shared.to_bytes(256, "big")
 
 
 def public_from_private(private: int) -> int:
+    """Recompute the public component from a known private exponent."""
     return pow(G, private, P)

@@ -7,16 +7,19 @@ from .poly1305 import poly1305_mac
 
 
 def _poly_key(key: bytes, nonce: bytes) -> bytes:
+    """Derive the one-time Poly1305 key using ChaCha20 block 0."""
     return chacha20_encrypt(key, nonce, 0, b"\x00" * 64)[:32]
 
 
 def _encode_length(value: int) -> bytes:
+    """Encode integer length value as little-endian 64-bit."""
     return value.to_bytes(8, "little")
 
 
 def chacha20_poly1305_encrypt(
     key: bytes, nonce: bytes, plaintext: bytes, aad: bytes
 ) -> tuple[bytes, bytes]:
+    """Encrypt plaintext and produce authentication tag for the given AAD."""
     poly_key = _poly_key(key, nonce)
     ciphertext = chacha20_encrypt(key, nonce, 1, plaintext)
     mac_data = aad + b"\x00" * ((16 - len(aad) % 16) % 16)
@@ -30,6 +33,7 @@ def chacha20_poly1305_encrypt(
 def chacha20_poly1305_decrypt(
     key: bytes, nonce: bytes, ciphertext: bytes, aad: bytes, tag: bytes
 ) -> bytes:
+    """Decrypt ciphertext after verifying the Poly1305 tag."""
     poly_key = _poly_key(key, nonce)
     mac_data = aad + b"\x00" * ((16 - len(aad) % 16) % 16)
     mac_data += ciphertext + b"\x00" * ((16 - len(ciphertext) % 16) % 16)
@@ -42,6 +46,7 @@ def chacha20_poly1305_decrypt(
 
 
 def _constant_time_eq(a: bytes, b: bytes) -> bool:
+    """Compare two byte strings without leaking timing information."""
     if len(a) != len(b):
         return False
     result = 0

@@ -4,11 +4,13 @@ from __future__ import annotations
 
 
 def _clamp(r: int) -> int:
+    """Mask forbidden bits in r as mandated by the specification."""
     r &= 0x0FFFFFFC0FFFFFFC0FFFFFFC0FFFFFFF
     return r
 
 
 def poly1305_mac(key: bytes, msg: bytes) -> bytes:
+    """Compute Poly1305 authenticator for the given message."""
     if len(key) != 32:
         raise ValueError("Poly1305 key must be 32 bytes")
     r = _clamp(int.from_bytes(key[:16], "little"))

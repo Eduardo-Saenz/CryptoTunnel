@@ -14,11 +14,13 @@ from .tunnel import SecureTunnel, SessionKeys
 
 
 def load_psk(path: str) -> bytes:
+    """Read the pre-shared key from disk."""
     with open(path, "rb") as handle:
         return handle.read()
 
 
 def receive_handshake(sock: socket.socket, psk: bytes) -> tuple[SessionKeys, tuple[str, int]]:
+    """Process client hello, respond, and return session keys plus address."""
     server = HandshakeServer(psk)
     data, addr = sock.recvfrom(4096)
     client_msg = decode_handshake_message(data)
@@ -33,6 +35,7 @@ def receive_handshake(sock: socket.socket, psk: bytes) -> tuple[SessionKeys, tup
 
 
 def receive_file(tunnel: SecureTunnel, output_path: str) -> None:
+    """Write decrypted chunks from the tunnel into a file."""
     with open(output_path, "wb") as handle:
         while True:
             chunk = tunnel.receive_packet()
@@ -42,6 +45,7 @@ def receive_file(tunnel: SecureTunnel, output_path: str) -> None:
 
 
 def main() -> None:
+    """CLI entry point for the secure tunnel server."""
     parser = argparse.ArgumentParser(description="Secure tunnel server")
     parser.add_argument("--listen-host", default="0.0.0.0")
     parser.add_argument("--listen-port", type=int, required=True)

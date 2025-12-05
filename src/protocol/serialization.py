@@ -6,6 +6,7 @@ import json
 
 
 def encode_handshake_message(msg: dict) -> bytes:
+    """Serialize a handshake message as JSON/hex for network transport."""
     payload = msg["payload"]
     data = {
         "role": payload["role"],
@@ -17,6 +18,7 @@ def encode_handshake_message(msg: dict) -> bytes:
 
 
 def decode_handshake_message(blob: bytes) -> dict:
+    """Decode JSON/hex handshake message into the original dictionary."""
     data = json.loads(blob.decode("utf-8"))
     payload = {
         "role": data["role"],

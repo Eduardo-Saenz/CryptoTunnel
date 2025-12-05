@@ -10,6 +10,7 @@ BLOCK_SIZE = 64
 
 
 def _normalize_key(key: bytes) -> bytes:
+    """Hash/zero-pad key so it fits the HMAC block size."""
     if len(key) > BLOCK_SIZE:
         key = sha256(key)
     return key.ljust(BLOCK_SIZE, b"\x00")

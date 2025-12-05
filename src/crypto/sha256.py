@@ -85,15 +85,18 @@ _K = (
 
 
 def _right_rotate(value: int, shift: int) -> int:
+    """Return value rotated right by the requested number of bits."""
     return ((value >> shift) | (value << (32 - shift))) & 0xFFFFFFFF
 
 
 def _chunks(data: bytes, size: int) -> Iterable[bytes]:
+    """Yield successive blocks of the desired size from data."""
     for idx in range(0, len(data), size):
         yield data[idx : idx + size]
 
 
 def _pad_message(message: bytes) -> bytes:
+    """Apply SHA-256 padding so the message length is congruent to 448 mod 512."""
     length = len(message) * 8
     padded = message + b"\x80"
     while (len(padded) % 64) != 56:
@@ -103,6 +106,7 @@ def _pad_message(message: bytes) -> bytes:
 
 
 def _compress(chunk: bytes, state: List[int]) -> None:
+    """Process one 512-bit block and update the running hash state."""
     w = [int.from_bytes(chunk[i : i + 4], "big") for i in range(0, 64, 4)]
     for i in range(16, 64):
         s0 = (

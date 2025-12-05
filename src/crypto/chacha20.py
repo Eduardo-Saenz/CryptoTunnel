@@ -10,6 +10,7 @@ def _rotl32(value: int, shift: int) -> int:
 
 
 def _quarter_round(state, a, b, c, d):
+    """Apply ChaCha quarter round to the provided state indices."""
     state[a] = (state[a] + state[b]) & 0xFFFFFFFF
     state[d] ^= state[a]
     state[d] = _rotl32(state[d], 16)
@@ -28,6 +29,7 @@ def _quarter_round(state, a, b, c, d):
 
 
 def _chacha_block(key: bytes, counter: int, nonce: bytes) -> bytes:
+    """Produce a 64-byte keystream block for the given counter/nonce."""
     if len(key) != 32:
         raise ValueError("ChaCha20 key must be 32 bytes")
     if len(nonce) != 12:
@@ -59,7 +61,7 @@ def _chacha_block(key: bytes, counter: int, nonce: bytes) -> bytes:
 
 
 def chacha20_encrypt(key: bytes, nonce: bytes, counter: int, data: bytes) -> bytes:
-    """Encrypt or decrypt data with ChaCha20."""
+    """Encrypt or decrypt data with ChaCha20 (symmetric stream cipher)."""
     keystream = bytearray()
     block_counter = counter
     for offset in range(0, len(data), 64):

@@ -17,11 +17,13 @@ CHUNK_SIZE = 2048
 
 
 def load_psk(path: str) -> bytes:
+    """Read the pre-shared key from disk."""
     with open(path, "rb") as handle:
         return handle.read()
 
 
 def perform_handshake(sock: socket.socket, psk: bytes) -> SessionKeys:
+    """Execute client-side handshake over the given socket."""
     client = HandshakeClient(psk)
     message = encode_handshake_message(client.build_hello())
     sock.sendall(message)
@@ -36,6 +38,7 @@ def perform_handshake(sock: socket.socket, psk: bytes) -> SessionKeys:
 
 
 def send_file(tunnel: SecureTunnel, path: str) -> None:
+    """Read a file and stream its contents through the encrypted tunnel."""
     with open(path, "rb") as handle:
         while True:
             chunk = handle.read(CHUNK_SIZE)
@@ -46,6 +49,7 @@ def send_file(tunnel: SecureTunnel, path: str) -> None:
 
 
 def main() -> None:
+    """CLI entry point for the secure tunnel client."""
     parser = argparse.ArgumentParser(description="Secure tunnel client")
     parser.add_argument("--server-host", required=True)
     parser.add_argument("--server-port", type=int, required=True)
